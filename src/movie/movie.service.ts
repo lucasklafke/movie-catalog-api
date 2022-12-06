@@ -40,6 +40,13 @@ export class MovieService {
     });
   }
   async update(data: UpdateMovieDto) {
+    const movieExist = await this.repository.findOne({
+      where: {
+        name: data.name,
+      },
+    });
+    if (movieExist)
+      throw new HttpException('the name of the movie already exist!', 409);
     const movie = await this.repository.findOne({
       where: {
         id: data.id,
