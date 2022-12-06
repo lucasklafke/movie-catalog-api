@@ -8,7 +8,7 @@ import { MovieEntity } from './entities/movie.entity';
 @Injectable()
 export class MovieService {
   constructor(
-    @Inject('MOVIE_REPOSITORY')
+    @InjectRepository(MovieEntity)
     private readonly repository: Repository<MovieEntity>,
   ) {}
 

@@ -7,11 +7,8 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-user.dto';
-import { MovieEntity } from './entities/movie.entity';
 import { MovieService } from './movie.service';
 
 @Controller('movie')
