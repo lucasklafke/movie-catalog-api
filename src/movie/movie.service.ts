@@ -1,5 +1,11 @@
-import { HttpException, Inject, Injectable } from '@nestjs/common';
+import {
+  CACHE_MANAGER,
+  HttpException,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Cache } from 'cache-manager';
 import { Repository } from 'typeorm';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-user.dto';
@@ -10,6 +16,7 @@ export class MovieService {
   constructor(
     @InjectRepository(MovieEntity)
     private readonly repository: Repository<MovieEntity>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async findOne(id: string) {
@@ -32,7 +39,14 @@ export class MovieService {
   }
 
   async findMany() {
-    return await this.repository.find();
+    const cachedMovies = await this.cacheManager.get('movies');
+    if (cachedMovies) {
+      return cachedMovies;
+    } else {
+      const movies = await this.repository.find();
+      await this.cacheManager.set('movies', movies, 20000);
+      return movies;
+    }
   }
   async delete(id: string) {
     return await this.repository.delete({
