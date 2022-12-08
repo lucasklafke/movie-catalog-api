@@ -2,7 +2,7 @@ import {
   CACHE_MANAGER,
   HttpException,
   Inject,
-  Injectable,
+  Injectable
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Cache } from 'cache-manager';
@@ -16,14 +16,14 @@ export class MovieService {
   constructor(
     @InjectRepository(MovieEntity)
     private readonly repository: Repository<MovieEntity>,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
   async findOne(id: string) {
     const movie = await this.repository.findOne({
       where: {
-        id: id,
-      },
+        id: id
+      }
     });
     if (!movie) throw new HttpException('movie not found!', 404);
     return movie;
@@ -31,7 +31,7 @@ export class MovieService {
 
   async create(data: CreateMovieDto) {
     const movieExist = await this.repository.findOne({
-      where: { name: data.name },
+      where: { name: data.name }
     });
     if (movieExist) throw new HttpException('movie already exist!', 409);
     const movie = await this.repository.save(data);
@@ -50,21 +50,21 @@ export class MovieService {
   }
   async delete(id: string) {
     return await this.repository.delete({
-      id,
+      id
     });
   }
   async update(data: UpdateMovieDto) {
     const movieExist = await this.repository.findOne({
       where: {
-        name: data.name,
-      },
+        name: data.name
+      }
     });
     if (movieExist)
       throw new HttpException('the name of the movie already exist!', 409);
     const movie = await this.repository.findOne({
       where: {
-        id: data.id,
-      },
+        id: data.id
+      }
     });
     movie.director = data.director;
     movie.genre = data.genre;

@@ -6,26 +6,14 @@ import { MovieModule } from './movie/movie.module';
 import 'reflect-metadata';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import * as redisStore from 'cache-manager-redis-store';
+import { dataSourceOptions } from 'db/data-source';
 @Module({
   imports: [
     MovieModule,
     ConfigModule.forRoot(),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.DB_HOST,
-      port: Number(process.env.DB_PORT),
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
-      entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-      synchronize: true,
-      migrations: [
-        /*...*/
-      ],
-      migrationsTableName: 'custom_migration_table',
-    }),
+    TypeOrmModule.forRoot(dataSourceOptions)
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService]
 })
 export class AppModule {}

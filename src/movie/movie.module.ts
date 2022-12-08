@@ -1,9 +1,9 @@
 import { CacheModule, Module } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { MovieController } from './movie.controller';
+import * as redisStore from 'cache-manager-redis-store';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MovieEntity } from './entities/movie.entity';
-import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
   imports: [
@@ -11,10 +11,10 @@ import * as redisStore from 'cache-manager-redis-store';
     CacheModule.register({
       Store: redisStore,
       host: 'localhost', //default host
-      port: 6379,
-    }),
+      port: 6379
+    })
   ],
   controllers: [MovieController],
-  providers: [MovieService],
+  providers: [MovieService]
 })
 export class MovieModule {}
