@@ -9,11 +9,13 @@ import {
   UseGuards
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiTags } from '@nestjs/swagger';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-user.dto';
 import { MovieService } from './movie.service';
 
 @Controller('movie')
+@ApiTags('movies')
 @UseGuards(AuthGuard('jwt'))
 export class MovieController {
   constructor(private readonly movieService: MovieService) {}
