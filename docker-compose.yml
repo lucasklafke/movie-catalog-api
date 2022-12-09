@@ -1,12 +1,36 @@
-version: '3.4'
-
+version: "3"
 services:
-  moviecatalogapi:
-    image: moviecatalogapi
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    environment:
-      NODE_ENV: production
+  db_postgres_movie_api:
+    image: postgres:13
+    container_name: db_postgres_movie_api
+    restart: always #container reinicia se morrer
     ports:
-      - 3000:3000
+      - 2346:5432
+    env_file:
+      - .env.prod #configurar POSTGRES_USER, POSTGRES_PASSWORD e POSTGRES_DB
+    volumes:
+      - pg:/var/lib/postgresql/data
+
+  # redis:
+  #   image: redis
+  #   container_name: redis
+  #   ports: 
+  #     - 6379:6379
+  #   volumes: 
+  #     - redis:/var/lib/redis/data
+
+  node_app_movie_api:
+    container_name: node_app_movie_api
+    build: . #Dockerfile do node se encontra na pasta atual
+    ports:
+      - 5000:5000
+    depends_on:
+      - db_postgres_movie_api # só sobe quando o postgres tiver no ar
+      # - redis
+    env_file:
+      - .env.prod #configurar DATABASE_URL
+  
+
+volumes:
+  pg:
+  # redis:

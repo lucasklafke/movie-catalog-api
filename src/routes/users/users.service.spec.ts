@@ -158,11 +158,8 @@ describe('UsersService', () => {
       };
       try {
         const user = await userService.update(1, dto);
-        Logger.log(user);
         expect(user).toEqual(fakeUsers[1]);
-      } catch (err) {
-        Logger.log(err);
-      }
+      } catch (err) {}
     });
 
     it('should throw an error', async () => {
@@ -188,7 +185,6 @@ describe('UsersService', () => {
           password: 'Lucas123'
         });
       } catch (err) {
-        Logger.log(err);
         expect(err).toBeDefined();
         expect(err.status).toEqual(409);
       }
@@ -204,7 +200,6 @@ describe('UsersService', () => {
           password: 'Lucas123'
         });
       } catch (err) {
-        Logger.log(err);
         expect(err).toBeDefined();
         expect(err.status).toEqual(404);
       }
