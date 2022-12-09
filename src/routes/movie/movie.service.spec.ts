@@ -16,14 +16,14 @@ describe('MovieService', () => {
       director: 'lucas',
       genre: 'action',
       name: 'the famous case of lucas with nest.js',
-      releaseDate: new Date('2022-02-02'),
-    },
+      releaseDate: new Date('2022-02-02')
+    }
   ];
   const mockRepository = {
     findOne: jest.fn().mockResolvedValue(fakeMovies[0]),
     save: jest.fn().mockResolvedValue(fakeMovies[0]),
     find: jest.fn().mockResolvedValue(fakeMovies),
-    delete: jest.fn().mockResolvedValue(undefined),
+    delete: jest.fn().mockResolvedValue(undefined)
   };
 
   beforeEach(async () => {
@@ -32,14 +32,14 @@ describe('MovieService', () => {
         MovieService,
         {
           provide: getRepositoryToken(MovieEntity),
-          useValue: mockRepository,
-        },
-      ],
+          useValue: mockRepository
+        }
+      ]
     }).compile();
 
     service = module.get<MovieService>(MovieService);
     repository = module.get<Repository<MovieEntity>>(
-      getRepositoryToken(MovieEntity),
+      getRepositoryToken(MovieEntity)
     );
   });
 
@@ -56,7 +56,7 @@ describe('MovieService', () => {
         director: 'lucas',
         genre: 'action',
         name: 'the famous case of lucas with nest.js',
-        releaseDate: new Date('2022-02-02'),
+        releaseDate: new Date('2022-02-02')
       };
       const result = await service.create(data);
 
@@ -69,7 +69,7 @@ describe('MovieService', () => {
         director: 'lucas',
         genre: 'action',
         name: 'the famous case of lucas with nest.js',
-        releaseDate: new Date('2022-02-02'),
+        releaseDate: new Date('2022-02-02')
       };
       try {
         const result = await service.create(data);
@@ -103,7 +103,7 @@ describe('MovieService', () => {
   describe('fineMany endpoint', () => {
     it('should return many movies', async () => {
       const result = await service.findMany();
-      expect(result.length).toBeGreaterThan(0);
+      expect(result).toBeGreaterThan(0);
       expect(result).toBeDefined();
       expect(result).toEqual(fakeMovies);
     });
@@ -148,7 +148,7 @@ describe('MovieService', () => {
       } catch (error) {
         expect(error).toBeDefined();
         expect(error).toEqual(
-          new HttpException('the name of the movie already exist!', 404),
+          new HttpException('the name of the movie already exist!', 404)
         );
       }
     });
