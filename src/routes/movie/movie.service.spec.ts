@@ -1,6 +1,7 @@
-import { HttpException, Logger } from '@nestjs/common';
+import { CACHE_MANAGER, HttpException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { Cache } from 'cache-manager';
 import { Repository } from 'typeorm';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-user.dto';
@@ -10,6 +11,7 @@ import { MovieService } from './movie.service';
 describe('MovieService', () => {
   let service: MovieService;
   let repository: Repository<MovieEntity>;
+  let cache: Cache;
   const fakeMovies = [
     {
       id: '1',
@@ -33,6 +35,13 @@ describe('MovieService', () => {
         {
           provide: getRepositoryToken(MovieEntity),
           useValue: mockRepository
+        },
+        {
+          provide: CACHE_MANAGER,
+          useValue: {
+            get: jest.fn().mockResolvedValue(undefined),
+            set: jest.fn().mockResolvedValue(undefined)
+          }
         }
       ]
     }).compile();
@@ -41,6 +50,7 @@ describe('MovieService', () => {
     repository = module.get<Repository<MovieEntity>>(
       getRepositoryToken(MovieEntity)
     );
+    cache = module.get<Cache>(CACHE_MANAGER);
   });
 
   it('should be defined', () => {
@@ -101,9 +111,20 @@ describe('MovieService', () => {
   });
 
   describe('fineMany endpoint', () => {
-    it('should return many movies', async () => {
-      const result = await service.findMany();
-      expect(result).toBeGreaterThan(0);
+    it('should return many movies of database', async () => {
+      const result: MovieEntity[] = await service.findMany();
+      expect(result.length).toBeGreaterThan(0);
+      expect(result).toBeDefined();
+      expect(result).toEqual(fakeMovies);
+      expect(cache.set).toBeCalled();
+    });
+
+    it('should return many movies of cache', async () => {
+      jest.spyOn(cache, 'get').mockImplementationOnce((): any => {
+        return fakeMovies;
+      });
+      const result: MovieEntity[] = await service.findMany();
+      expect(result.length).toBeGreaterThan(0);
       expect(result).toBeDefined();
       expect(result).toEqual(fakeMovies);
     });
