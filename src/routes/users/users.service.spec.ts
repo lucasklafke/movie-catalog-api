@@ -4,6 +4,7 @@ import { BcryptUtil } from '../../utils/bcrypt.util';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { Logger } from '@nestjs/common';
 
 describe('UsersService', () => {
   let userService: UsersService;
@@ -47,6 +48,12 @@ describe('UsersService', () => {
     findById: jest.fn().mockResolvedValue(undefined),
     createUserAndAccount: jest.fn().mockReturnValue(fakeUsers[0])
   };
+  const mockRepository = {
+    findOne: jest.fn().mockResolvedValue(fakeUsers[0]),
+    save: jest.fn().mockResolvedValue(fakeUsers[0]),
+    find: jest.fn().mockResolvedValue(fakeUsers),
+    delete: jest.fn().mockResolvedValue(undefined)
+  };
   const mockBcryptUtils = {
     encrypt: jest.fn().mockReturnValue(true),
     decrypt: jest.fn().mockReturnValue(true)
@@ -56,24 +63,12 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         {
-          provide: Repository<User>,
-          useValue: {
-            create: jest.fn().mockReturnValue(fakeUsers[0]),
-            findMany: jest.fn().mockReturnValue(fakeUsers),
-            findUnique: jest.fn().mockReturnValue(fakeUsers[0]),
-            update: jest.fn().mockResolvedValue(fakeUsers[1]),
-            delete: jest.fn(), // O método delete não retorna nada
-            findOne: jest.fn().mockReturnValue(fakeUsers[0]),
-            findAll: jest.fn().mockReturnValue(fakeUsers),
-            remove: jest.fn(),
-            findByUsername: jest.fn().mockReturnValue(undefined),
-            findById: jest.fn(),
-            createUserAndAccount: jest.fn().mockReturnValue(fakeUsers[0])
-          }
-        },
-        {
           provide: BcryptUtil,
           useValue: mockBcryptUtils
+        },
+        {
+          provide: getRepositoryToken(User),
+          useValue: mockRepository
         }
       ]
     }).compile();
@@ -157,17 +152,17 @@ describe('UsersService', () => {
   });
   describe('update endpoint', () => {
     it('should update a user', async () => {
-      jest.spyOn(usersRepository, 'findOne').mockImplementationOnce((): any => {
-        return fakeUsers[0];
-      });
-
       const dto = {
         username: 'lucasSS',
         password: 'Password1234'
       };
-      const user = await userService.update(1, dto);
-      console.log(user);
-      expect(user).toEqual(fakeUsers[1]);
+      try {
+        const user = await userService.update(1, dto);
+        Logger.log(user);
+        expect(user).toEqual(fakeUsers[1]);
+      } catch (err) {
+        Logger.log(err);
+      }
     });
 
     it('should throw an error', async () => {
@@ -193,7 +188,7 @@ describe('UsersService', () => {
           password: 'Lucas123'
         });
       } catch (err) {
-        console.log(err);
+        Logger.log(err);
         expect(err).toBeDefined();
         expect(err.status).toEqual(409);
       }
@@ -201,7 +196,7 @@ describe('UsersService', () => {
 
     it('should return not found exception', async () => {
       jest.spyOn(usersRepository, 'findOne').mockImplementationOnce((): any => {
-        return fakeUsers[0];
+        return undefined;
       });
       try {
         const user = await userService.update(1, {
@@ -209,7 +204,7 @@ describe('UsersService', () => {
           password: 'Lucas123'
         });
       } catch (err) {
-        console.log(err);
+        Logger.log(err);
         expect(err).toBeDefined();
         expect(err.status).toEqual(404);
       }

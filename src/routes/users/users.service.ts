@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { BcryptUtil } from '../../utils/bcrypt.util';
@@ -54,8 +54,9 @@ export class UsersService {
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.repository.findOne({ where: { id: id } });
-    if (!user)
+    if (!user) {
       throw new HttpException(`User ${id} not found`, HttpStatus.NOT_FOUND);
+    }
     const verifyUsernameAlreadyExist = this.repository.findOne({
       where: {
         username: updateUserDto.username
